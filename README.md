@@ -1,4 +1,4 @@
-# Enhancing Generalized Hand Hygiene Recognition
+![image](https://github.com/user-attachments/assets/6e20e71a-df63-4d8e-8ae5-a5fae3542e6b)# Enhancing Generalized Hand Hygiene Recognition
 
 
 ## Objectives
@@ -72,7 +72,8 @@ cap = cv2.VideoCapture(0)
 - F1 Score: 93.29%
 - Recall: 93.17%
 
-*Add image here*
+![image](https://github.com/user-attachments/assets/f45fe42b-e7fb-45ab-903c-7c1e3d12e220)
+
 
 ---
 
