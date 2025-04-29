@@ -105,12 +105,31 @@ inference_results = deque(maxlen=10)
 inference_thread = threading.Thread(target=inference_worker, daemon=True)
 inference_thread.start()
 
+def camera_adjust(frame, crop_percent=0.8, brightness=30, contrast=1.2):
+    # Get frame dimensions
+    height, width = frame.shape[:2]
+
+    # Crop center of the frame
+    new_width = int(width * crop_percent)
+    new_height = int(height * crop_percent)
+    start_x = (width - new_width) // 2
+    start_y = (height - new_height) // 2
+    cropped = frame[start_y:start_y + new_height, start_x:start_x + new_width]
+
+    # Resize back to original size if needed
+    resized = cv2.resize(cropped, (width, height))
+
+    # Apply brightness and contrast
+    adjusted = cv2.convertScaleAbs(resized, alpha=contrast, beta=brightness)
+
+    return adjusted
+
 # Function to detect gestures using a webcam
 def detect_camera():
     #cap = cv2.VideoCapture('data/HandWashDataset/Step_1/HandWash_001_A_01_G01.mp4')
     #cap = cv2.VideoCapture('image_1_test.mp4')
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(3) # 3
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
@@ -135,8 +154,12 @@ def detect_camera():
         if not ret:
             break
 
+        #frame = camera_adjust(frame, crop_percent=1, brightness=30, contrast=1.2) # Bright -100/+100, Contrast 0.5-3.0
+
         frame = cv2.flip(frame, -1)
         frame_counter += 1
+
+
 
         if frame_counter % frame_skip != 0:
             continue
