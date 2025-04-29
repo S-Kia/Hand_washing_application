@@ -19,9 +19,16 @@ step_names = ["1", "2lt", "2rt", "3", "4lt", "4rt", "5lt", "5rt", "6lt", "6rt", 
 def parse_hand_data(hand_str):
     try:
         hand_data = np.array([float(v) for v in hand_str.strip('[]').split(',')])
-        return hand_data
+        if hand_data.size == 63:  # 21 keypoints × 3 coordinates
+            return hand_data
+        elif hand_data.size > 63:
+            return hand_data[:63]  # Truncate to 63
+        else:
+            # Pad with zeros if less than 63
+            return np.pad(hand_data, (0, 63 - hand_data.size), mode='constant')
     except Exception:
-        return np.array([0.0] * 21 * 3)
+        return np.zeros(63)
+
 
 # Function to load data
 def load_data(data_folder):
@@ -34,6 +41,7 @@ def load_data(data_folder):
             # Parse left and right hand data
             left_data = df['Left'].apply(parse_hand_data)
             right_data = df['Right'].apply(parse_hand_data)
+
             step_data = np.concatenate([np.stack(left_data), np.stack(right_data)], axis=1)
 
             # Append data and labels
@@ -134,11 +142,13 @@ def generalize_recognition(data_folder):
     # Save the dataset for normalization
     joblib.dump(X, 'X.pkl')
 
+    """
     # Visualize the step distribution
     visualize_step_distribution(y, step_names)
 
     # Visualize the hand distribution for all steps
     visualize_hand_distribution_all_steps(X, y, num_steps=len(step_names))
+    """
 
     # Normalize the data
     X_normalized = normalize_data(X)
@@ -344,5 +354,3 @@ if __name__ == "__main__":
     #generalize_recognition_timestep(data_folder, 5)
     #evaluate_metrics_by_timestep(data_folder, max_steps=30)
     generalize_recognition(data_folder)
-
-
